@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Abhijeet Beedikar's Website</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        :root {
+            --bg-primary: #f9fafb;
+            --bg-secondary: #ffffff;
+            --text-primary: #111827;
+            --text-secondary: #6b7280;
+            --accent: #3b82f6;
+        }
+        
+        .dark-mode {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #1a1a1a;
+            --text-primary: #f9fafb;
+            --text-secondary: #9ca3af;
+            --accent: #a855f7;
+        }
+        
+        body {
+            color: var(--text-primary);
+            transition: color 0.3s ease;
+            overflow-x: hidden;
+        }
+        
+        /* Animated wave lines background */
+        #wave-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        
+        .bg-primary {
+            background-color: var(--bg-primary);
+        }
+        
+        .bg-secondary {
+            background-color: var(--bg-secondary);
+        }
+        
+        .text-primary {
+            color: var(--text-primary);
+        }
+        
+        .text-secondary {
+            color: var(--text-secondary);
+        }
+        
+        .gradient-card {
+            background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);
+        }
+        
+        .card {
+            background-color: var(--bg-secondary);
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .dark-mode .card:hover {
+            box-shadow: 0 20px 25px -5px rgba(168, 85, 247, 0.3), 0 10px 10px -5px rgba(168, 85, 247, 0.2);
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .animate-bounce {
+            animation: bounce 2s infinite;
+        }
+        
+        .skill-bar {
+            transition: width 1s ease-out;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .fade-in-up {
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+        
+        /* Experience card drop animation */
+        .experience-card {
+            opacity: 0;
+            transform: translateY(-50px) rotateX(-10deg);
+            transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        
+        .experience-card.visible {
+            opacity: 1;
+            transform: translateY(0) rotateX(0);
+        }
+        
+        /* Experience bullets drop animation */
+        .experience-bullet {
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: all 0.4s ease;
+        }
+        
+        .experience-bullet.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .hobby-card {
+            opacity: 0;
+            transform: scale(0.9);
+            transition: all 0.5s ease;
+        }
+        
+        .hobby-card.visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+        
+        .nav-link {
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .nav-link.active {
+            color: var(--accent);
+            font-weight: 600;
+        }
+        
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: var(--accent);
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                width: 0;
+            }
+            to {
+                width: 100%;
+            }
+        }
+        
+        /* Dark mode toggle styles */
+        .theme-toggle {
+            width: 60px;
+            height: 30px;
+            background-color: #d1d5db;
+            border-radius: 15px;
+            position: relative;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .dark-mode .theme-toggle {
+            background-color: #4b5563;
+        }
+        
+        .theme-toggle-circle {
+            width: 26px;
+            height: 26px;
+            background-color: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .dark-mode .theme-toggle-circle {
+            transform: translateX(30px);
+        }
+        
+        input, textarea {
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            border-color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <!-- Canvas Background -->
+    <canvas id="wave-canvas"></canvas>
+
+    <!-- Navigation -->
+    <nav id="navbar" class="fixed w-full z-50 transition-all duration-300 bg-transparent backdrop-blur-sm">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="text-2xl font-bold text-primary"></div>
+                
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex items-center space-x-6">
+                    <a href="#home" onclick="scrollToSection('home')" class="nav-link capitalize text-secondary hover:text-blue-600 transition-colors">Home</a>
+                    <a href="#about" onclick="scrollToSection('about')" class="nav-link capitalize text-secondary hover:text-blue-600 transition-colors">About</a>
+                    <a href="#education" onclick="scrollToSection('education')" class="nav-link capitalize text-secondary hover:text-blue-600 transition-colors">Education</a>
+                    <a href="#experience" onclick="scrollToSection('experience')" class="nav-link capitalize text-secondary hover:text-blue-600 transition-colors">Experience</a>
+                    <a href="#projects" onclick="scrollToSection('projects')" class="nav-link capitalize text-secondary hover:text-blue-600 transition-colors">Projects</a>
+                    <a href="#skills" onclick="scrollToSection('skills')" class="nav-link capitalize text-secondary hover:text-blue-600 transition-colors">Skills</a>
+                    <a href="#hobbies" onclick="scrollToSection('hobbies')" class="nav-link capitalize text-secondary hover:text-blue-600 transition-colors">Hobbies</a>
+                    <a href="#contact" onclick="scrollToSection('contact')" class="nav-link capitalize text-secondary hover:text-blue-600 transition-colors">Contact</a>
+                    
+                    <!-- Dark Mode Toggle -->
+                    <div class="theme-toggle" onclick="toggleTheme()">
+                        <div class="theme-toggle-circle">
+                            <span id="theme-icon">☀️</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <div class="flex items-center space-x-4 md:hidden">
+                    <div class="theme-toggle" onclick="toggleTheme()">
+                        <div class="theme-toggle-circle">
+                            <span id="theme-icon-mobile">☀️</span>
+                        </div>
+                    </div>
+                    <button id="mobile-menu-btn" class="text-primary">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-secondary border-t border-gray-200 dark:border-gray-700 backdrop-blur-md">
+            <a href="#home" onclick="scrollToSection('home')" class="block px-4 py-3 text-secondary hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-blue-600">Home</a>
+            <a href="#about" onclick="scrollToSection('about')" class="block px-4 py-3 text-secondary hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-blue-600">About</a>
+            <a href="#education" onclick="scrollToSection('education')" class="block px-4 py-3 text-secondary hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-blue-600">Education</a>
+            <a href="#experience" onclick="scrollToSection('experience')" class="block px-4 py-3 text-secondary hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-blue-600">Experience</a>
+            <a href="#projects" onclick="scrollToSection('projects')" class="block px-4 py-3 text-secondary hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-blue-600">Projects</a>
+            <a href="#skills" onclick="scrollToSection('skills')" class="block px-4 py-3 text-secondary hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-blue-600">Skills</a>
+            <a href="#hobbies" onclick="scrollToSection('hobbies')" class="block px-4 py-3 text-secondary hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-blue-600">Hobbies</a>
+            <a href="#contact" onclick="scrollToSection('contact')" class="block px-4 py-3 text-secondary hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-blue-600">Contact</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="min-h-screen flex items-center justify-center pt-16 relative">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center fade-in-up relative z-10">
+            <div class="mb-8">
+                <img src="images/profile (2).jpg" class="w-32 h-32 mx-auto mb-6 gradient-card rounded-full flex items-center justify-center text-white text-5xl font-bold shadow-2xl"></img>
+            </div>
+            <h1 class="text-5xl sm:text-6xl font-bold text-primary mb-4">
+                Hi, I'm <span class="text-purple-600 dark:text-purple-400">Abhijeet Beedikar</span>
+            </h1>
+            <p class="text-xl sm:text-2xl text-secondary mb-8">
+                AI Developer and Enthusiast
+            </p>
+            <p class="text-lg text-secondary mb-12 max-w-2xl mx-auto">
+                I work to create applications that have a high use case among society. Passionate about learning and implementing underlying technologies behind innovative software technology.
+            </p>
+            <div class="flex justify-center space-x-4 mb-12">
+                <a href="https://github.com/AbhijeetBeedikar" class="p-3 bg-secondary rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-110">
+                    <svg class="w-6 h-6 text-primary" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                    </svg>
+                </a>
+                <a href="https://linkedin.com/in/AbhijeetBeedikar" class="p-3 bg-secondary rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-110">
+                    <svg class="w-6 h-6 text-primary" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+                    </svg>
+                </a>
+                <a href="mailto:beedikarabhijeet@gmail.com" class="p-3 bg-secondary rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-110">
+                    <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                    </svg>
+                </a>
+            </div>
+            <div class="animate-bounce text-secondary hover:text-purple-600 cursor-pointer" onclick="scrollToSection('about')">
+                <svg class="w-10 h-10 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="py-20 bg-secondary bg-opacity-80 backdrop-blur-md relative">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-4xl font-bold text-center text-primary mb-12">About Me</h2>
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div class="space-y-4">
+                    <p class="text-secondary">
+                        I am driven to engineer high-impact systems that deliver measurable value and solve meaningful, real-world problems. My proficiency lies in developing machine learning and deep learning models.
+                    </p>
+                    <p class="text-secondary">
+                        My journey in Artificial Intelligence started 4 years ago. Since then I've been constantly upscaling myself by working on diverse projects. I am actively building expertise in Agentic Systems, Reinforcement Learning and Generative AI.
+                    </p>
+                    <p class="text-secondary">
+                        When I'm not coding, I may be learning about the architectures behind the latest technological breakthroughs. Typically, though, you will see me having the time of my life outdoors.
+                    </p>
+                </div>
+                <div class="card p-6 rounded-lg shadow-lg">
+                    <h3 class="text-2xl font-semibold text-primary mb-4">Quick Facts</h3>
+                    <ul class="space-y-3 text-secondary">
+                        <li class="flex items-center">
+                            <span class="text-purple-600 mr-2">📍</span> Currently in Madison, WI
+                        </li>
+                        <li class="flex items-center">
+                            <span class="text-purple-600 mr-2">💻</span> 3+ years of project experience
+                        </li>
+                        <li class="flex items-center">
+                            <span class="text-purple-600 mr-2">🎓</span> Triple majoring in Computer Science, Statistics, Data Science in 3 years
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Education Section -->
+    <section id="education" class="py-20 bg-primary bg-opacity-80 backdrop-blur-md relative">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-4xl font-bold text-center text-primary mb-12">Education</h2>
+            <div class="space-y-8">
+                <div class="experience-card card p-6 rounded-lg shadow-lg border-l-4 border-purple-600">
+                    <div class="flex flex-col md:flex-row md:justify-between md:items-start mb-2">
+                        <h3 class="text-2xl font-semibold text-primary">Bachelor of Science in Computer Science, Statistics and Data Science</h3>
+                        <span class="text-secondary text-sm md:text-base"> 2024 - Present</span>
+                    </div>
+                    <p class="text-purple-600 mb-3">University of Wisconsin, Madison</p>
+                    <ul class="space-y-2">
+                        <li class="experience-bullet flex items-start text-secondary">
+                            <span class="mr-2">•</span>
+                            <span>GPA: 3.863/4.0 </span>
+                        </li>
+                        <li class="experience-bullet flex items-start text-secondary">
+                            <span class="mr-2">•</span>
+                            <span>Dean's List: Fall 2024, Spring 2025</span>
+                        </li>
+                        <li class="experience-bullet flex items-start text-secondary">
+                            <span class="mr-2">•</span>
+                            <span>Coursework: Algorithms, Design of Experiments, Data Structures, Linear Algebra, Discrete Mathematics, Multivariate Calculus, Data Science Modeling, Computer Engineering</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="experience-card card p-6 rounded-lg shadow-lg border-l-4 border-purple-600">
+                    <div class="flex flex-col md:flex-row md:justify-between md:items-start mb-2">
+                        <h3 class="text-2xl font-semibold text-primary">Certifications</h3>
+                    </div>
+                    <ul class="space-y-2">
+                        <li class="experience-bullet flex items-start text-secondary">
+                            <span class="mr-2">•</span>
+                            <span>Kaggle Computer Vision (Feb 2025)</span>
+                        </li>
+                        <li class="experience-bullet flex items-start text-secondary">
+                            <span class="mr-2">•</span>
+                            <span>Kaggle Intro to Deep Learning (Feb 2025)</span>
+                        </li>
+                        <li class="experience-bullet flex items-start text-secondary">
+                            <span class="mr-2">•</span>
+                            <span>Microsoft Learn Generative AI Fundamentals Badge (Jan 2025)</span>
+                        </li>
+                        <li class="experience-bullet flex items-start text-secondary">
+                            <span class="mr-2">•</span>
+                            <span>Microsoft Learn AI Security Fundamentals Trophy (Jan 2025)</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Experience Section -->
+    <section id="experience" class="py-20 bg-primary bg-opacity-80 backdrop-blur-md relative">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-4xl font-bold text-center text-primary mb-12">Experience</h2>
+            <div class="space-y-8">
+                <div class="experience-card card p-6 rounded-lg shadow-lg border-l-4 border-purple-600">
+                    <div class="flex flex-col md:flex-row md:justify-between md:items-start mb-2">
+                        <h3 class="text-2xl font-semibold text-primary">AI Fellow</h3>
+                        <span class="text-secondary text-sm md:text-base">2025 - Present</span>
+                    </div>
+                    <p class="text-purple-600 mb-3">Handshake AI</p>
+                    <ul class="space-y-2">
+                        <li class="experience-bullet flex items-start text-secondary">
+                            <span class="mr-2">•</span>
+                            <span>Annotated multimodal datasets (audio, video, and image) to generate training data for multimodal assistant models.</span>
+                        </li>
+                        <li class="experience-bullet flex items-start text-secondary">
+                            <span class="mr-2">•</span>
+                            <span>Provided human feedback (RLHF) on vision-language model outputs, specifically correcting errors where the model failed to identify small text or details within images.</span>
+                        </li>
+                        <li class="experience-bullet flex items-start text-secondary">
+                            <span class="mr-2">•</span>
+                            <span>Fed multi-turn prompts to Large Language Models to guide them in generating fully functional web interfaces, identifying limits in code synthesis capabilities.</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Projects Section -->
+    <section id="projects" class="py-20 bg-secondary bg-opacity-80 backdrop-blur-md relative">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-4xl font-bold text-center text-primary mb-12">Projects</h2>
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="card rounded-lg shadow-lg overflow-hidden">
+                    <img src="images/RAG.jpg"></img>
+                    <div class="p-6">
+                        <h3 class="text-2xl font-semibold text-primary mb-2">Multimodal RAG System</h3>
+                        <p class="text-secondary mb-4">End-to-end multimodal Retrieval-Augmented Generation (RAG) system for enterprise applications built using NetworkX, Qdrant, LangChain and calls to Gemini. Provides LLM responses based on user-inputted documents including images, audio and text formats.</p>
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 rounded-full text-sm">Retrieval Augmented Generation</span>
+                            <span class="px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 rounded-full text-sm">Agentic Systems</span>
+                            <span class="px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 rounded-full text-sm">LangChain</span>
+                        </div>
+                        <a href="https://github.com/AbhijeetBeedikar/Multimodal-Enterprise-RAG-MVP" class="inline-flex items-center text-purple-600 hover:text-purple-700 font-medium transition-colors">
+                            View Project
+                            <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="card rounded-lg shadow-lg overflow-hidden">
+                    <img src="images/connect.jpg"></img>
+                    <div class="p-6">
+                        <h3 class="text-2xl font-semibold text-primary mb-2">Self-learning Game Bot</h3>
+                        <p class="text-secondary mb-4">Self-learning reinforcement learning system that uses Monte Carlo Tree Search (MCTS) method guided by an Upper Confidence Bound (UCB) policy to generate adaptive strategies in a Connect-4 board game environment.</p>
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 rounded-full text-sm">Reinforcement Learning</span>
+                            <span class="px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 rounded-full text-sm">Monte Carlo Modeling</span>
+                            <span class="px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 rounded-full text-sm">Python</span>
+                        </div>
+                        <a href="https://github.com/AbhijeetBeedikar/Connect4-RL-Bot" class="inline-flex items-center text-purple-600 hover:text-purple-700 font-medium transition-colors">
+                            View Project
+                            <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="card rounded-lg shadow-lg overflow-hidden">
+                    <img src="images/car.jpg"></img>
+                    <div class="p-6">
+                        <h3 class="text-2xl font-semibold text-primary mb-2">Autonomous Taxi Agent</h3>
+                        <p class="text-secondary mb-4">A Reinforcement Learning agent developed using OpenAI Gym’s Taxi-v3 environment that optimizes pick-up and drop-off policies using Double Q-learning. Selects efficient routes under varying state conditions.</p>
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 rounded-full text-sm">Reinforcement Learning</span>
+                            <span class="px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 rounded-full text-sm">OpenAI Gym</span>
+                            <span class="px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 rounded-full text-sm">Python</span>
+                        </div>
+                        <a href="https://github.com/AbhijeetBeedikar/Autonomous-Taxi-Agent" class="inline-flex items-center text-purple-600 hover:text-purple-700 font-medium transition-colors">
+                            View Project
+                            <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="card rounded-lg shadow-lg overflow-hidden">
+                    <img src="images/club.jpg"></img>
+                    <div class="p-6">
+                        <h3 class="text-2xl font-semibold text-primary mb-2">ClubMatcher.ai</h3>
+                        <p class="text-secondary mb-4">AI-based system that recommends university clubs using semantic similarity to students by analyzing personality traits and interests.</p>
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 rounded-full text-sm">Natural Language Processing</span>
+                            <span class="px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 rounded-full text-sm">Sentence Transformers</span>
+                            <span class="px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 rounded-full text-sm">Python</span>
+                        </div>
+                        <a href="https://github.com/Agastyarathee/ClubMatcher.ai" class="inline-flex items-center text-purple-600 hover:text-purple-700 font-medium transition-colors">
+                            View Project
+                            <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="card rounded-lg shadow-lg overflow-hidden">
+                    <img src="images/fake.jpeg"></img>
+                    <div class="p-6">
+                        <h3 class="text-2xl font-semibold text-primary mb-2">Fake News Detector</h3>
+                        <p class="text-secondary mb-4">Classification system that detects fake news with 89–95% accuracy. Trained using a Random Forest CLassifier over more than 80,000 news articles.</p>
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 rounded-full text-sm">Natural Language Processing</span>
+                            <span class="px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 rounded-full text-sm">Python</span>
+                            <span class="px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 rounded-full text-sm">Data Preprocessing</span>
+                        </div>
+                        <a href="https://github.com/AbhijeetBeedikar/Fake-News-Detector" class="inline-flex items-center text-purple-600 hover:text-purple-700 font-medium transition-colors">
+                            View Project
+                            <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="card rounded-lg shadow-lg overflow-hidden">
+                    <img src="images/waste-segregation.jpg"></img>
+                    <div class="p-6">
+                        <h3 class="text-2xl font-semibold text-primary mb-2">Waste Segregation System</h3>
+                        <p class="text-secondary mb-4">AI model capable of classifying 15 waste categories from images and real-time video feeds through transfer learning on a YOLOv7 model to help automate waste segregation and improve recycling efficiency.</p>
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 rounded-full text-sm">Neural Networks</span>
+                            <span class="px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 rounded-full text-sm">Image Processing</span>
+                            <span class="px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 rounded-full text-sm">Data Cleaning</span>
+                        </div>
+                        <a href="https://app.roboflow.com/yuvai-1pfz7/yuvai-project-garbage-detection/models/yuvai-project-garbage-detection/1" class="inline-flex items-center text-purple-600 hover:text-purple-700 font-medium transition-colors">
+                            View Project
+                            <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Skills Section -->
+    <section id="skills" class="py-20 bg-primary bg-opacity-80 backdrop-blur-md relative">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-4xl font-bold text-center text-primary mb-12">Skills</h2>
+            <div class="space-y-6">
+                <div>
+                    <div class="flex justify-between mb-2">
+                        <span class="text-base font-medium text-primary">Languages</span>
+                    </div>
+                </div>
+                    <div class="flex flex-wrap gap-2 mb-4">
+                        <span class="px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 rounded-full text-sm">Python</span>
+                        <span class="px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 rounded-full text-sm">Java</span>
+                        <span class="px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 rounded-full text-sm">R</span>
+                        <span class="px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 rounded-full text-sm">Bash</span>
+                        <span class="px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 rounded-full text-sm">HTML</span>
+                        <span class="px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 rounded-full text-sm">CSS</span>
+                        <span class="px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 rounded-full text-sm">JavaScript</span>
+                    </div>
+                <div>
+                    <div class="flex justify-between mb-2">
+                        <span class="text-base font-medium text-primary">Artificial Intelligence</span>
+                    </div>
+                    <div class="flex flex-wrap gap-2 mb-4">
+                        <span class="px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 rounded-full text-sm">Neural Networks</span>
+                        <span class="px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 rounded-full text-sm">Retrieval Augmented Generation</span>
+                        <span class="px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 rounded-full text-sm">LangChain</span>
+                        <span class="px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 rounded-full text-sm">Keras</span>
+                        <span class="px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 rounded-full text-sm">Tensorflow</span>
+                        <span class="px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 rounded-full text-sm">PyTorch</span>
+                        <span class="px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 rounded-full text-sm">Reinforcement Learning</span>
+                        <span class="px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 rounded-full text-sm">OpenAI Gym</span>
+                        <span class="px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 rounded-full text-sm">Computer Vision</span>
+                        <span class="px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 rounded-full text-sm">Image Processing</span>
+                        <span class="px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 rounded-full text-sm">Natural Language Processing</span>
+                        <span class="px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 rounded-full text-sm">NLTK</span>
+                        <span class="px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 rounded-full text-sm">Sentence Transformers</span>
+                        <span class="px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 rounded-full text-sm">Machine Learning</span>
+                        <span class="px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 rounded-full text-sm">Scikit-learn</span>
+                        <span class="px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 rounded-full text-sm">Data Cleaning</span>
+                        <span class="px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 rounded-full text-sm">Decision Trees</span>
+                    </div>
+                </div>
+                <div>
+                    <div class="flex justify-between mb-2">
+                        <span class="text-base font-medium text-primary">Other</span>
+                    </div>
+                    <div class="flex flex-wrap gap-2 mb-4">
+                        <span class="px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 rounded-full text-sm">Statistical Analysis</span>
+                        <span class="px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 rounded-full text-sm">Git</span>
+                        <span class="px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 rounded-full text-sm">Hypothesis Testing</span>
+                        <span class="px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 rounded-full text-sm">Monte Carlo Simulations</span>
+                        <span class="px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 rounded-full text-sm">Project Management</span>
+                        <span class="px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 rounded-full text-sm">Vector Databases</span>
+                        <span class="px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 rounded-full text-sm">Streamlit</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Hobbies Section -->
+    <section id="hobbies" class="py-20 bg-secondary bg-opacity-80 backdrop-blur-md relative">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-4xl font-bold text-center text-primary mb-12">Hobbies & Interests</h2>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="hobby-card card p-6 rounded-lg shadow-lg text-center">
+                    <div class="text-5xl mb-4">🧗‍♂️</div>
+                    <h3 class="text-xl font-semibold text-primary mb-2">Outdoor Activities</h3>
+                    <p>Treks, midnight s'mores over campfires, water activities, roller coasters and so much more! Always making the most out of what life offers.</p>
+                </div>
+                <div class="hobby-card card p-6 rounded-lg shadow-lg text-center">
+                    <div class="text-5xl mb-4">🏃</div>
+                    <h3 class="text-xl font-semibold text-primary mb-2">Sports</h3>
+                    <p class="text-secondary">Playing sports like basketball, cricket, and football on a weekly basis. I used to swim competitively at the varsity level and continue to boost my stamina with it.</p>
+                </div>
+                <div class="hobby-card card p-6 rounded-lg shadow-lg text-center">
+                    <div class="text-5xl mb-4">📚</div>
+                    <h3 class="text-xl font-semibold text-primary mb-2">Writing</h3>
+                    <p class="text-secondary">Been writing books since I was 12. Taking a break from it for now, but look forward to continuing it soon. </p>
+                </div>
+                <div class="hobby-card card p-6 rounded-lg shadow-lg text-center">
+                    <div class="text-5xl mb-4">🎵</div>
+                    <h3 class="text-xl font-semibold text-primary mb-2">Music</h3>
+                    <p class="text-secondary">Enjoying diverse genres ranging from energetic rock and house music to softer piano and lo-fi.</p>
+                </div>
+                <div class="hobby-card card p-6 rounded-lg shadow-lg text-center">
+                    <div class="text-5xl mb-4">🌍</div>
+                    <h3 class="text-xl font-semibold text-primary mb-2">Travel</h3>
+                    <p class="text-secondary">From biking through San Francisco to walking across London, I find myself exploring new cities through inter-city trips with friends and other solo trips.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-20 bg-primary bg-opacity-80 backdrop-blur-md relative">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-4xl font-bold text-center text-primary mb-12">Get In Touch</h2>
+            <div class="text-center mb-12">
+                <p class="text-xl text-secondary mb-6">
+                    I'm currently open to new opportunities and collaborations. 
+                    Feel free to reach out if you'd like to work together!
+                </p>
+            </div>
+            <div class="max-w-2xl mx-auto space-y-6">
+                <div>
+                    <input
+                        type="text"
+                        id="name"
+                        placeholder="Your Name"
+                        class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all"
+                    />
+                </div>
+                <div>
+                    <input
+                        type="email"
+                        id="email"
+                        placeholder="Your Email"
+                        class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all"
+                    />
+                </div>
+                <div>
+                    <textarea
+                        id="message"
+                        placeholder="Your Message"
+                        rows="6"
+                        class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all"
+                    ></textarea>
+                </div>
+                <button
+                    onclick="handleSubmit()"
+                    class="w-full bg-purple-600 text-white py-3 rounded-lg font-semibold hover:bg-purple-700 transition-all transform hover:scale-105"
+                >
+                    Send Message
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-8 relative z-10">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <p class="mb-4">© 2026 Abhijeet Beedikar. All rights reserved.</p>
+            <div class="flex justify-center space-x-6">
+                <a href="https://github.com/AbhijeetBeedikar" class="hover:text-purple-400 transition-colors">GitHub</a>
+                <a href="https://linkedin.com/in/AbhijeetBeedikar" class="hover:text-purple-400 transition-colors">LinkedIn</a>
+                <a href="mailto:beedikarabhijeet@gmail.com" class="hover:text-purple-400 transition-colors">Email</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Canvas wave animation
+        const canvas = document.getElementById('wave-canvas');
+        const ctx = canvas.getContext('2d');
+        let waves = [];
+        let isDarkMode = false;
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        class Wave {
+            constructor(amplitude, frequency, phase, speed, yOffset) {
+                this.amplitude = amplitude;
+                this.frequency = frequency;
+                this.phase = phase;
+                this.speed = speed;
+                this.yOffset = yOffset;
+            }
+
+            draw(time) {
+                ctx.beginPath();
+                ctx.moveTo(0, canvas.height / 2);
+
+                for (let x = 0; x < canvas.width; x++) {
+                    const y = this.yOffset + 
+                              this.amplitude * Math.sin(this.frequency * x * 0.01 + this.phase + time * this.speed);
+                    ctx.lineTo(x, y);
+                }
+
+                ctx.strokeStyle = isDarkMode 
+                    ? `rgba(168, 85, 247, ${0.1 + Math.random() * 0.1})` 
+                    : `rgba(100, 100, 100, ${0.05 + Math.random() * 0.05})`;
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+        }
+
+        // Initialize waves
+        for (let i = 0; i < 8; i++) {
+            waves.push(new Wave(
+                30 + Math.random() * 50,
+                0.5 + Math.random() * 0.5,
+                Math.random() * Math.PI * 2,
+                0.0005 + Math.random() * 0.001,
+                canvas.height * (0.2 + i * 0.1)
+            ));
+        }
+
+        function animate(time) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Background
+            ctx.fillStyle = isDarkMode ? '#0a0a0a' : '#f9fafb';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            waves.forEach(wave => wave.draw(time));
+            requestAnimationFrame(animate);
+        }
+
+        animate(0);
+
+        // Scroll to section function
+        function scrollToSection(sectionId) {
+            const element = document.getElementById(sectionId);
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                document.getElementById('mobile-menu').classList.add('hidden');
+            }
+        }
+
+        // Dark mode toggle
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            isDarkMode = document.body.classList.contains('dark-mode');
+            document.getElementById('theme-icon').textContent = isDarkMode ? '🌙' : '☀️';
+            document.getElementById('theme-icon-mobile').textContent = isDarkMode ? '🌙' : '☀️';
+            localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+        }
+
+        // Load saved theme
+        window.addEventListener('load', () => {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-mode');
+                isDarkMode = true;
+                document.getElementById('theme-icon').textContent = '🌙';
+                document.getElementById('theme-icon-mobile').textContent = '🌙';
+            }
+        });
+
+        // Mobile menu toggle
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // Navbar scroll effect
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                navbar.classList.add('bg-secondary', 'shadow-md');
+                navbar.classList.remove('bg-transparent');
+            } else {
+                navbar.classList.remove('bg-secondary', 'shadow-md');
+                navbar.classList.add('bg-transparent');
+            }
+        });
+
+        // Active nav link
+        const sections = document.querySelectorAll('section[id]');
+        const navLinks = document.querySelectorAll('.nav-link');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (pageYOffset >= (sectionTop - 200)) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                const href = link.getAttribute('href');
+                if (href === `#${current}`) {
+                    link.classList.add('active');
+                }
+            });
+        });
+
+        // Animate experience cards and bullets
+        const animateExperience = () => {
+            const experienceCards = document.querySelectorAll('.experience-card');
+            
+            experienceCards.forEach((card, cardIndex) => {
+                const rect = card.getBoundingClientRect();
+                if (rect.top < window.innerHeight - 100 && !card.classList.contains('visible')) {
+                    setTimeout(() => {
+                        card.classList.add('visible');
+                        
+                        // Animate bullets after card appears
+                        const bullets = card.querySelectorAll('.experience-bullet');
+                        bullets.forEach((bullet, bulletIndex) => {
+                            setTimeout(() => {
+                                bullet.classList.add('visible');
+                            }, 200 + bulletIndex * 150);
+                        });
+                    }, cardIndex * 200);
+                }
+            });
+        };
+
+        // Animate skill bars on scroll
+        const animateSkills = () => {
+            const skillBars = document.querySelectorAll('.skill-bar');
+            skillBars.forEach(bar => {
+                const rect = bar.getBoundingClientRect();
+                if (rect.top < window.innerHeight && rect.bottom >= 0) {
+                    const width = bar.getAttribute('data-width');
+                    bar.style.width = width + '%';
+                }
+            });
+        };
+
+        // Animate hobby cards
+        const animateHobbies = () => {
+            const hobbyCards = document.querySelectorAll('.hobby-card');
+            hobbyCards.forEach((card, index) => {
+                const rect = card.getBoundingClientRect();
+                if (rect.top < window.innerHeight - 100) {
+                    setTimeout(() => {
+                        card.classList.add('visible');
+                    }, index * 100);
+                }
+            });
+        };
+
+        window.addEventListener('scroll', () => {
+            animateExperience();
+            animateSkills();
+            animateHobbies();
+        });
+        
+        window.addEventListener('load', () => {
+            animateExperience();
+            animateSkills();
+            animateHobbies();
+        });
+
+        // Contact form handler
+        function handleSubmit() {
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const message = document.getElementById('message').value;
+            
+            if (name && email && message) {
+                const subject = encodeURIComponent(`Portfolio Message from ${name}`);
+                const body = encodeURIComponent(`From: ${name} (${email})\n\n${message}`);
+        
+                // This opens the user's email client
+                window.location.href = `mailto:beedikarabhijeet@gmail.com?subject=${subject}&body=${body}`;
+        
+                // Clear fields
+                alert('Thank you for your message! I will get back to you soon.');
+                document.getElementById('name').value = '';
+                document.getElementById('email').value = '';
+                document.getElementById('message').value = '';
+            } else {
+                alert('Please fill in all fields.');
+            }
+        }
+    </script>
+</body>
+</html>
